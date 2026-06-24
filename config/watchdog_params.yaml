@@ -19,6 +19,10 @@ ros2_watchdog:
     monitored_topics.lidar.actions: ["log", "publish_diagnostic", "call_trigger_service"]
     monitored_topics.lidar.trigger_service: "/safety/switch_to_safe_mode"
     monitored_topics.lidar.notify_on_recovery: true
+    # Lidar drivers conventionally publish SensorDataQoS (best_effort). This
+    # is also the watchdog's default, shown explicitly here for clarity.
+    monitored_topics.lidar.qos_reliability: "best_effort"
+    monitored_topics.lidar.qos_durability: "volatile"
 
     monitored_topics.camera.topic: "/camera/image_raw"
     monitored_topics.camera.type: "sensor_msgs/msg/Image"
@@ -28,6 +32,8 @@ ros2_watchdog:
     monitored_topics.camera.dead_timeout_multiplier: 5.0
     monitored_topics.camera.actions: ["log", "publish_diagnostic"]
     monitored_topics.camera.notify_on_recovery: true
+    monitored_topics.camera.qos_reliability: "best_effort"
+    monitored_topics.camera.qos_durability: "volatile"
 
     monitored_topics.odom.topic: "/odom"
     monitored_topics.odom.type: "nav_msgs/msg/Odometry"
@@ -37,3 +43,7 @@ ros2_watchdog:
     monitored_topics.odom.dead_timeout_multiplier: 5.0
     monitored_topics.odom.actions: ["log", "publish_diagnostic", "publish_event"]
     monitored_topics.odom.notify_on_recovery: true
+    # Odometry is commonly published as reliable -- shown here to demonstrate
+    # overriding the default.
+    monitored_topics.odom.qos_reliability: "reliable"
+    monitored_topics.odom.qos_durability: "volatile"

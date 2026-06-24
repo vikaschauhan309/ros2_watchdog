@@ -1,5 +1,6 @@
 #include "ros2_watchdog/watchdog_node.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <stdexcept>
 
@@ -23,6 +24,37 @@ ActionType ParseActionType(const std::string & name)
     return ActionType::kCallTriggerService;
   }
   throw std::invalid_argument("Unknown watchdog action type: '" + name + "'");
+}
+
+rclcpp::QoS ParseQos(
+  const std::string & reliability, const std::string & durability, int depth,
+  const std::string & topic_key, rclcpp::Logger logger)
+{
+  rclcpp::QoS qos(static_cast<size_t>(std::max(depth, 1)));
+
+  if (reliability == "best_effort") {
+    qos.best_effort();
+  } else if (reliability == "reliable") {
+    qos.reliable();
+  } else {
+    RCLCPP_WARN(
+      logger, "Topic key '%s' has unknown qos_reliability '%s', defaulting to best_effort",
+      topic_key.c_str(), reliability.c_str());
+    qos.best_effort();
+  }
+
+  if (durability == "volatile") {
+    qos.durability_volatile();
+  } else if (durability == "transient_local") {
+    qos.transient_local();
+  } else {
+    RCLCPP_WARN(
+      logger, "Topic key '%s' has unknown qos_durability '%s', defaulting to volatile",
+      topic_key.c_str(), durability.c_str());
+    qos.durability_volatile();
+  }
+
+  return qos;
 }
 }  // namespace
 
@@ -91,9 +123,16 @@ void WatchdogNode::LoadParameters()
       actions.push_back(action);
     }
 
+    const std::string qos_reliability =
+      declare_parameter<std::string>(prefix + "qos_reliability", "best_effort");
+    const std::string qos_durability =
+      declare_parameter<std::string>(prefix + "qos_durability", "volatile");
+    const int qos_depth = declare_parameter<int>(prefix + "qos_depth", 10);
+
     MonitoredTopic entry;
     entry.monitor_config = monitor_config;
     entry.actions = std::move(actions);
+    entry.qos = ParseQos(qos_reliability, qos_durability, qos_depth, key, get_logger());
     monitored_topics_.push_back(std::move(entry));
   }
 }
@@ -116,7 +155,7 @@ LifecycleCallbackReturn WatchdogNode::on_configure(const rclcpp_lifecycle::State
 
     entry.subscription = rclcpp::create_generic_subscription(
       get_node_topics_interface(), entry.monitor_config.topic_name,
-      entry.monitor_config.topic_type, rclcpp::QoS(10),
+      entry.monitor_config.topic_type, entry.qos,
       [this, topic_name = entry.monitor_config.topic_name](
         std::shared_ptr<rclcpp::SerializedMessage>) {
         for (auto & m : monitored_topics_) {

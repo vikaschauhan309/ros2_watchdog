@@ -40,6 +40,13 @@ private:
   {
     TopicMonitorConfig monitor_config;
     std::vector<ActionConfig> actions;
+    // Defaults to best-effort/volatile: a best-effort *subscriber* is QoS-
+    // compatible with both best-effort and reliable publishers (DDS allows a
+    // subscriber to request weaker reliability than what's offered), so this
+    // is the one default that won't silently fail to connect to a sensor
+    // driver publishing SensorDataQoS. Override per-topic if a publisher
+    // genuinely requires reliable/transient_local to match.
+    rclcpp::QoS qos = rclcpp::QoS(10).best_effort().durability_volatile();
     std::unique_ptr<TopicMonitor> monitor;
     rclcpp::GenericSubscription::SharedPtr subscription;
   };

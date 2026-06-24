@@ -77,6 +77,9 @@ to namespace its parameters):
 | `monitored_topics.<key>.actions` | `string[]` | Any of `log`, `publish_diagnostic`, `publish_event`, `call_trigger_service` |
 | `monitored_topics.<key>.trigger_service` | `string` | Service name for `call_trigger_service` (must be `std_srvs/srv/Trigger`) |
 | `monitored_topics.<key>.notify_on_recovery` | `bool` | Also fire `log`/`publish_diagnostic`/`publish_event` actions when the topic recovers to `OK` |
+| `monitored_topics.<key>.qos_reliability` | `string` | `best_effort` (default) or `reliable`. Defaults to `best_effort` because a best-effort *subscriber* is QoS-compatible with both best-effort and reliable publishers — a reliable subscriber against a best-effort sensor driver (the common case for lidar/camera) would silently fail to connect |
+| `monitored_topics.<key>.qos_durability` | `string` | `volatile` (default) or `transient_local` — must match the publisher for latched/static topics |
+| `monitored_topics.<key>.qos_depth` | `int` | Subscription queue depth, default `10` |
 
 ## Architecture
 
