@@ -84,13 +84,22 @@ to namespace its parameters):
 ## Architecture
 
 ```
- monitored topic ──> GenericSubscription ──> TopicMonitor (OK/STALE/DEAD state machine)
-                                                      │
-                                            on state transition
-                                                      ▼
-                                            ActionDispatcher
-                                          ┌──────┬──────────┬───────────────┐
-                                          log  diagnostic  publish_event  call_trigger_service
+┌─────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│                 │     │                     │     │ TopicMonitor (FSM)  │
+│ Monitored Topic │ --> │ GenericSubscription │ --> │ OK -> STALE -> DEAD │
+└─────────────────┘     └─────────────────────┘     └─────────────────────┘
+                                                               |
+                                                               | on state transition
+                                                               v
+                                                     ┌──────────────────┐
+                                                     │ ActionDispatcher │
+                                                     └──────────────────┘
+                                                               |
+                                                               | dispatches any combination of:
+                                                               +-- log
+                                                               +-- publish_diagnostic
+                                                               +-- publish_event
+                                                               +-- call_trigger_service
 ```
 
 - `TopicMonitor` is pure C++ logic with no ROS dependency — it just tracks wall-clock
