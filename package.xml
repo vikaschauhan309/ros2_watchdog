@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>ros2_watchdog</name>
+  <version>0.1.0</version>
+  <description>
+    Generic ROS2 lifecycle node that monitors topic rate and staleness across
+    a robot stack and dispatches configurable failure actions (log, diagnostics,
+    service calls, health events) via YAML, with no per-robot code changes.
+  </description>
+  <maintainer email="vikaschauhan309@gmail.com">Vikas Chauhan</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>std_srvs</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>builtin_interfaces</depend>
+
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>lifecycle_msgs</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <!-- Not linked against directly (GenericSubscription resolves types at
+       runtime), but their typesupport must be installed for the example
+       configs/demo to work. -->
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>launch_testing_ament_cmake</test_depend>
+  <test_depend>launch_testing</test_depend>
+  <test_depend>launch_testing_ros</test_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

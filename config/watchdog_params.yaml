@@ -1,0 +1,39 @@
+# Realistic example: a mobile robot with a lidar, a camera, and wheel
+# odometry. Each monitored topic is referenced by a short key under
+# monitored_topics; the key itself is arbitrary, only used to namespace
+# that topic's parameters below.
+ros2_watchdog:
+  ros__parameters:
+    scan_period_sec: 0.1
+    monitored_topics:
+      - lidar
+      - camera
+      - odom
+
+    monitored_topics.lidar.topic: "/lidar/scan"
+    monitored_topics.lidar.type: "sensor_msgs/msg/LaserScan"
+    monitored_topics.lidar.expected_rate_hz: 10.0
+    monitored_topics.lidar.rate_tolerance_ratio: 0.5
+    monitored_topics.lidar.staleness_timeout_sec: 0.5
+    monitored_topics.lidar.dead_timeout_multiplier: 5.0
+    monitored_topics.lidar.actions: ["log", "publish_diagnostic", "call_trigger_service"]
+    monitored_topics.lidar.trigger_service: "/safety/switch_to_safe_mode"
+    monitored_topics.lidar.notify_on_recovery: true
+
+    monitored_topics.camera.topic: "/camera/image_raw"
+    monitored_topics.camera.type: "sensor_msgs/msg/Image"
+    monitored_topics.camera.expected_rate_hz: 30.0
+    monitored_topics.camera.rate_tolerance_ratio: 0.5
+    monitored_topics.camera.staleness_timeout_sec: 1.0
+    monitored_topics.camera.dead_timeout_multiplier: 5.0
+    monitored_topics.camera.actions: ["log", "publish_diagnostic"]
+    monitored_topics.camera.notify_on_recovery: true
+
+    monitored_topics.odom.topic: "/odom"
+    monitored_topics.odom.type: "nav_msgs/msg/Odometry"
+    monitored_topics.odom.expected_rate_hz: 50.0
+    monitored_topics.odom.rate_tolerance_ratio: 0.4
+    monitored_topics.odom.staleness_timeout_sec: 0.3
+    monitored_topics.odom.dead_timeout_multiplier: 5.0
+    monitored_topics.odom.actions: ["log", "publish_diagnostic", "publish_event"]
+    monitored_topics.odom.notify_on_recovery: true

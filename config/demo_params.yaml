@@ -1,0 +1,17 @@
+# Used by scripts/demo_failure_sim.py and the README walkthrough. A single
+# fast topic with a short staleness timeout so the OK -> STALE -> DEAD ->
+# action -> RECOVERED cycle plays out in a few seconds for a live demo.
+ros2_watchdog:
+  ros__parameters:
+    scan_period_sec: 0.05
+    monitored_topics:
+      - demo_sensor
+
+    monitored_topics.demo_sensor.topic: "/demo/sensor"
+    monitored_topics.demo_sensor.type: "std_msgs/msg/Empty"
+    monitored_topics.demo_sensor.expected_rate_hz: 10.0
+    monitored_topics.demo_sensor.rate_tolerance_ratio: 0.5
+    monitored_topics.demo_sensor.staleness_timeout_sec: 0.5
+    monitored_topics.demo_sensor.dead_timeout_multiplier: 4.0
+    monitored_topics.demo_sensor.actions: ["log", "publish_diagnostic", "publish_event"]
+    monitored_topics.demo_sensor.notify_on_recovery: true
