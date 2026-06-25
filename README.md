@@ -5,7 +5,45 @@ rate and staleness, and declare what should happen when it fails — log it, rai
 diagnostic, call a failover service, or publish a health event — all via YAML,
 with zero code changes per robot.
 
-![Watchdog explainer animation](media/watchdog_explainer.gif)
+### What it actually does
+
+Four short scenarios, each isolating one behavior of the watchdog:
+
+**1. A single topic fails and recovers, while others stay healthy**
+`/camera/image` and `/odom` never change — they're there so you can see the
+watchdog tracks `/lidar/scan`'s health independently of the rest of the system,
+not as a global "is anything wrong" flag.
+
+![Single-topic failure and recovery](media/01_failure_and_recovery.gif)
+
+**2. The same failure, routed through four different configured actions**
+Nothing here is hardcoded — `log`, `publish_diagnostic`, `publish_event`, and
+`call_trigger_service` are all the same `on_dead.action` YAML field taking a
+different value. Choosing what happens on failure is a config decision per
+topic, not a code change.
+
+![Same failure routed through four action types](media/02_action_dispatch_types.gif)
+
+**3. Two topics fail on overlapping but independent schedules**
+`/camera/image` and `/lidar/scan` go stale and dead at different, overlapping
+times. Each topic has its own `OK → STALE → DEAD` state machine and dispatches
+its own configured action — one topic failing doesn't block or delay detection
+of the other.
+
+![Two topics failing independently with overlap](media/03_simultaneous_multi_topic_failure.gif)
+
+**4. A topic that never publishes at all**
+`/odom` never sends a single message after the node starts, so there's no
+last-message timestamp to measure staleness against. The watchdog seeds its
+staleness clock from node-start time instead, so a topic with zero messages
+still ages through `OK → STALE → DEAD` on the normal schedule rather than
+being silently treated as healthy forever just because it has no history yet.
+
+![Topic with no baseline ever, correctly flagged dead](media/04_never_published_topic.gif)
+
+All four GIFs are generated, not recorded — see
+[`tools/anim/generate_explainer_gifs.py`](tools/anim/generate_explainer_gifs.py)
+to regenerate them after changing the wording or scenarios.
 
 ## Why this exists
 
