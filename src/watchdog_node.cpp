@@ -1,6 +1,5 @@
 #include "ros2_watchdog/watchdog_node.hpp"
 
-#include <algorithm>
 #include <chrono>
 #include <stdexcept>
 
